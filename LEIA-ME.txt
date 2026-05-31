@@ -1,0 +1,25 @@
+FREEDOM — Freedom4 FIRE Planner
+================================
+
+COMO ABRIR O APP (sem Cursor, sem instalar nada):
+
+  1. Duplo clique em:  Iniciar-FREEDOM.bat     (recomendado)
+  2. O navegador abre em http://127.0.0.1:8765/
+
+ALTERNATIVAS:
+
+  Iniciar-FREEDOM-direto.bat  — abre index.html direto (sem servidor)
+  Iniciar-com-servidor.bat    — igual ao recomendado
+  Criar-atalho-Area-de-Trabalho.bat — atalho na Area de Trabalho
+
+PARAR O SERVIDOR:
+
+  Feche a janela "Freedom4 Servidor" na barra de tarefas.
+
+SEUS DADOS:
+
+  Salvos automaticamente no navegador (localStorage) ao usar o servidor local.
+
+PASTA DO PROJETO:
+
+  c:\_PROJETOS\FREEDOM

@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Freedom4 FIRE Planner</title>
+  <!-- Fontes locais do sistema: funciona offline, sem CDN -->
+  <style>
+    :root, [data-theme="light"] {
+      --text-xs: clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem);
+      --text-sm: clamp(0.875rem, 0.8rem + 0.35vw, 1rem);
+      --text-base: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
+      --text-lg: clamp(1.125rem, 1rem + 0.75vw, 1.5rem);
+      --text-xl: clamp(1.5rem, 1.2rem + 1.25vw, 2.25rem);
+      --space-1: 0.25rem; --space-2: 0.5rem; --space-3: 0.75rem; --space-4: 1rem; --space-5: 1.25rem; --space-6: 1.5rem; --space-8: 2rem; --space-10: 2.5rem; --space-12: 3rem; --space-16: 4rem;
+      --color-bg: #f7f6f2; --color-surface: #f9f8f5; --color-surface-2: #fbfbf9; --color-surface-offset: #f1efe8; --color-border: #d4d1ca; --color-divider:#dfdcd5;
+      --color-text: #28251d; --color-text-muted: #6f6d67; --color-text-faint:#a5a29b; --color-text-inverse:#f9f8f4;
+      --color-primary:#01696f; --color-primary-hover:#0c4e54; --color-primary-highlight:#cedcd8;
+      --color-success:#437a22; --color-warning:#da7101; --color-blue:#006494; --color-error:#a13544;
+      --radius-sm:0.375rem; --radius-md:0.5rem; --radius-lg:0.75rem; --radius-xl:1rem; --radius-full:9999px;
+      --shadow-sm:0 1px 2px rgba(30,24,10,.06); --shadow-md:0 8px 24px rgba(30,24,10,.08); --shadow-lg:0 16px 40px rgba(30,24,10,.12);
+      --font-body: system-ui, 'Segoe UI', Roboto, sans-serif;
+    }
+    [data-theme="dark"] {
+      --color-bg:#171614; --color-surface:#1c1b19; --color-surface-2:#201f1d; --color-surface-offset:#252320; --color-border:#393836; --color-divider:#2b2926;
+      --color-text:#e2e0dc; --color-text-muted:#aba8a2; --color-text-faint:#6f6c67; --color-text-inverse:#171614;
+      --color-primary:#4f98a3; --color-primary-hover:#227f8b; --color-primary-highlight:#2f3a39;
+      --color-success:#6daa45; --color-warning:#fdab43; --color-blue:#5591c7; --color-error:#dd6974;
+      --shadow-sm:0 1px 2px rgba(0,0,0,.2); --shadow-md:0 8px 24px rgba(0,0,0,.28); --shadow-lg:0 16px 40px rgba(0,0,0,.36);
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    html,body{height:100%}
+    body{font-family:var(--font-body);font-size:var(--text-base);background:var(--color-bg);color:var(--color-text);line-height:1.5}
+    button,input,select{font:inherit;color:inherit}
+    button{cursor:pointer;border:none;background:none}
+    .app{display:grid;grid-template-columns:280px 1fr;grid-template-rows:auto 1fr;height:100dvh}
+    .sidebar{grid-row:1/-1;background:var(--color-surface);border-right:1px solid var(--color-border);padding:var(--space-6);display:flex;flex-direction:column;gap:var(--space-6);overflow:auto}
+    .header{grid-column:2;display:flex;justify-content:space-between;align-items:center;padding:var(--space-4) var(--space-6);border-bottom:1px solid var(--color-border);background:color-mix(in srgb, var(--color-surface) 85%, transparent);backdrop-filter:blur(10px);position:sticky;top:0;z-index:20}
+    .main{grid-column:2;overflow:auto;padding:var(--space-6);display:grid;gap:var(--space-6)}
+    .brand{display:flex;align-items:center;gap:var(--space-3)}
+    .logo{width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,var(--color-primary),var(--color-success));display:grid;place-items:center;color:white;box-shadow:var(--shadow-md)}
+    .brand h1{font-size:var(--text-lg);line-height:1.1}
+    .brand small{display:block;color:var(--color-text-muted);font-size:var(--text-xs)}
+    .nav{display:grid;gap:var(--space-2)}
+    .nav button{padding:0.85rem 1rem;border-radius:var(--radius-lg);text-align:left;background:transparent;border:1px solid transparent}
+    .nav button.active,.nav button:hover{background:var(--color-primary-highlight);border-color:color-mix(in srgb,var(--color-primary) 22%, var(--color-border))}
+    .muted{color:var(--color-text-muted)}
+    .tiny{font-size:var(--text-xs)}
+    .grid{display:grid;gap:var(--space-4)}
+    .hero{display:grid;grid-template-columns:1.3fr .9fr;gap:var(--space-4)}
+    .card{background:var(--color-surface);border:1px solid color-mix(in srgb,var(--color-text) 10%, transparent);border-radius:var(--radius-xl);box-shadow:var(--shadow-sm)}
+    .card.pad{padding:var(--space-5)}
+    .hero-panel{padding:var(--space-6);display:flex;flex-direction:column;justify-content:space-between;min-height:250px;background:linear-gradient(135deg,color-mix(in srgb,var(--color-primary-highlight) 65%, var(--color-surface)) 0%, var(--color-surface) 100%)}
+    .hero-panel h2{font-size:var(--text-xl);max-width:14ch;line-height:1.05}
+    .hero-panel p{max-width:52ch;color:var(--color-text-muted)}
+    .cta-row,.header-actions,.row{display:flex;gap:var(--space-3);flex-wrap:wrap;align-items:center}
+    .btn{padding:0.88rem 1.1rem;border-radius:var(--radius-lg);border:1px solid var(--color-border);background:var(--color-surface-2)}
+    .btn.primary{background:var(--color-primary);color:var(--color-text-inverse);border-color:var(--color-primary)}
+    .btn.primary:hover{background:var(--color-primary-hover)}
+    .pill{display:inline-flex;align-items:center;gap:0.35rem;padding:0.35rem 0.65rem;border-radius:999px;background:var(--color-primary-highlight);color:var(--color-primary);font-size:var(--text-xs);font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+    .kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--space-4)}
+    .kpi{padding:var(--space-5)}
+    .kpi .label{font-size:var(--text-xs);text-transform:uppercase;letter-spacing:.06em;color:var(--color-text-muted);margin-bottom:var(--space-3)}
+    .kpi .value{font-size:clamp(1.6rem,1.3rem + 1vw,2.25rem);font-weight:900;font-variant-numeric:tabular-nums lining-nums}
+    .kpi .sub{margin-top:var(--space-2);font-size:var(--text-sm);color:var(--color-text-muted)}
+    .planner{display:grid;grid-template-columns:1.1fr .9fr;gap:var(--space-4)}
+    .form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--space-4)}
+    .field{display:grid;gap:var(--space-2)}
+    label{font-size:var(--text-sm);font-weight:700}
+    input,select{width:100%;padding:0.95rem 1rem;border-radius:var(--radius-lg);border:1px solid var(--color-border);background:var(--color-surface-2)}
+    input:focus,select:focus{outline:2px solid color-mix(in srgb,var(--color-primary) 40%, transparent);outline-offset:2px}
+    .styles{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--space-3)}
+    .style-option{padding:var(--space-4);border-radius:var(--radius-lg);border:1px solid var(--color-border);background:var(--color-surface-2);cursor:pointer}
+    .style-option.active{border-color:var(--color-primary);background:var(--color-primary-highlight)}
+    .progress-wrap{display:grid;gap:var(--space-4)}
+    .meter{height:16px;border-radius:999px;background:var(--color-surface-offset);overflow:hidden;border:1px solid var(--color-border)}
+    .meter > span{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--color-primary),var(--color-success));border-radius:inherit;transition:width .5s ease}
+    .ring{width:220px;height:220px;margin:auto;position:relative}
+    .ring svg{transform:rotate(-90deg)}
+    .ring-center{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:2rem}
+    .ring-center strong{font-size:2rem;font-variant-numeric:tabular-nums}
+    .scenario-table{width:100%;border-collapse:collapse}
+    .scenario-table th,.scenario-table td{padding:0.85rem;border-bottom:1px solid var(--color-divider);text-align:left;font-size:var(--text-sm)}
+    .scenario-table th{color:var(--color-text-muted);font-size:var(--text-xs);text-transform:uppercase;letter-spacing:.06em}
+    .sliders{display:grid;gap:var(--space-4)}
+    input[type="range"]{padding:0;border:none;background:transparent}
+    .onboarding{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--space-4)}
+    .step{padding:var(--space-5)}
+    .step-num{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:var(--color-primary-highlight);color:var(--color-primary);font-weight:900;margin-bottom:var(--space-3)}
+    .footer-note{padding:var(--space-4);border-radius:var(--radius-lg);background:var(--color-surface-offset);font-size:var(--text-sm);color:var(--color-text-muted)}
+    .kpis.v2{grid-template-columns:repeat(5,minmax(0,1fr))}
+    .chart-wrap{height:220px;width:100%}
+    .chart-wrap svg{width:100%;height:100%;display:block}
+    .chart-legend{display:flex;gap:var(--space-4);flex-wrap:wrap;font-size:var(--text-xs);color:var(--color-text-muted)}
+    .chart-legend span::before{content:'';display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:.35rem;vertical-align:middle}
+    .chart-legend .bal::before{background:var(--color-primary)}
+    .chart-legend .goal::before{background:var(--color-warning)}
+    .insight-list{display:grid;gap:var(--space-2);margin-top:var(--space-3)}
+    .insight-list li{font-size:var(--text-sm);color:var(--color-text-muted);padding-left:1rem;border-left:3px solid var(--color-primary-highlight)}
+    .coast-grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-4);align-items:start}
+    .coast-stat{padding:var(--space-4);border-radius:var(--radius-lg);background:var(--color-surface-2);border:1px solid var(--color-border)}
+    .coast-stat strong{display:block;font-size:clamp(1.25rem,1rem + 1vw,1.75rem);font-variant-numeric:tabular-nums;margin-top:var(--space-2)}
+    @media (max-width: 1100px){.app{grid-template-columns:1fr;grid-template-rows:auto auto 1fr}.sidebar{grid-row:auto;border-right:none;border-bottom:1px solid var(--color-border)}.header,.main{grid-column:1}.hero,.planner,.onboarding,.kpis,.kpis.v2,.coast-grid{grid-template-columns:1fr}.form-grid{grid-template-columns:1fr}.styles{grid-template-columns:1fr}.ring{width:180px;height:180px}}
+    @media (max-width: 700px){.header{padding:var(--space-4)}.sidebar,.main{padding:var(--space-4)}.hero-panel{min-height:auto}.kpis,.kpis.v2{grid-template-columns:1fr 1fr}.onboarding{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="logo" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-label="Freedom4 logo">
+            <path d="M5 16.5c3-1 4.5-4 6-9 1.2 4.8 3.8 7.7 8 8.5"/>
+            <path d="M15.5 5.5h3.5v3.5"/>
+          </svg>
+        </div>
+        <div>
+          <h1>Freedom4</h1>
+          <small>Planejador FIRE</small>
+        </div>
+      </div>
+
+      <nav class="nav" id="mainNav" aria-label="Navegação principal">
+        <button type="button" class="active" data-scroll="heroSection">Visão geral</button>
+        <button type="button" data-scroll="plannerSection">Calculadora 4%</button>
+        <button type="button" data-scroll="chartSection">Simulador</button>
+        <button type="button" data-scroll="scenarioSection">Cenários</button>
+        <button type="button" data-scroll="coastSection">Coast FIRE</button>
+      </nav>
+
+      <div class="card pad">
+        <div class="pill">V2 · termos reais</div>
+        <p style="margin-top:1rem">Meta em <strong>valores de hoje</strong> com IPCA e retorno real <em>(1+r)/(1+i)−1</em>.</p>
+        <p class="muted tiny" style="margin-top:.75rem">Planejador educacional — não é projeção definitiva de aposentadoria.</p>
+      </div>
+
+      <div class="footer-note">
+        Fluxo sugerido: escolha seu estilo de vida, ajuste a renda mensal e descubra o prazo para atingir sua independência financeira.
+      </div>
+    </aside>
+
+    <header class="header">
+      <div>
+        <div class="tiny muted">Freedom4 · V2</div>
+        <div style="font-weight:900">App de independência financeira</div>
+      </div>
+      <div class="header-actions">
+        <button class="btn" id="presetConfortavel">Perfil confortável</button>
+        <button class="btn" id="themeToggle" aria-label="Alternar tema">🌙</button>
+      </div>
+    </header>
+
+    <main class="main">
+      <section class="hero" id="heroSection">
+        <div class="card hero-panel">
+          <div class="grid">
+            <span class="pill">V2 · inflação + data FIRE + gráfico</span>
+            <h2>Descubra seu Número da Liberdade e o caminho até ele.</h2>
+            <p id="heroSummary">Simule em valores reais, veja quando chega à meta e compare Coast FIRE com o plano tradicional.</p>
+            <ul class="insight-list" id="heroInsights" aria-live="polite"></ul>
+          </div>
+          <div class="cta-row">
+            <button class="btn primary" id="scrollPlanner">Calcular agora</button>
+            <button class="btn" id="fillExample">Usar exemplo do vídeo</button>
+          </div>
+        </div>
+
+        <div class="card pad progress-wrap">
+          <div>
+            <div class="tiny muted">Veredito atual</div>
+            <h3 style="font-size:var(--text-lg);margin-top:.35rem">Seu objetivo calculado</h3>
+          </div>
+          <div class="ring" aria-label="Progresso do objetivo">
+            <svg viewBox="0 0 220 220">
+              <circle cx="110" cy="110" r="92" stroke="var(--color-surface-offset)" stroke-width="18" fill="none"></circle>
+              <circle id="progressCircle" cx="110" cy="110" r="92" stroke="url(#grad)" stroke-width="18" fill="none" stroke-linecap="round" stroke-dasharray="578" stroke-dashoffset="578"></circle>
+              <defs>
+                <linearGradient id="grad" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0%" stop-color="var(--color-primary)"/>
+                  <stop offset="100%" stop-color="var(--color-success)"/>
+                </linearGradient>
+              </defs>
+            </svg>
+            <div class="ring-center">
+              <div>
+                <strong id="progressPct">0%</strong>
+                <div class="muted">da meta</div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div class="meter"><span id="progressBar"></span></div>
+            <p class="muted" style="margin-top:.75rem" id="progressText">Preencha os dados para ver seu avanço.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="kpis v2">
+        <article class="card kpi">
+          <div class="label">Número da liberdade</div>
+          <div class="value" id="targetValue">R$ 0</div>
+          <div class="sub" id="targetSub">Meta em valores de hoje (poder de compra atual).</div>
+        </article>
+        <article class="card kpi">
+          <div class="label">Meta nominal no FIRE</div>
+          <div class="value" id="targetNominalValue">R$ 0</div>
+          <div class="sub" id="targetNominalSub">Patrimônio nominal no mês em que atinge a meta.</div>
+        </article>
+        <article class="card kpi">
+          <div class="label">Data prevista FIRE</div>
+          <div class="value" id="fireDateValue">--</div>
+          <div class="sub" id="fireDateSub">Com retorno real após descontar IPCA.</div>
+        </article>
+        <article class="card kpi">
+          <div class="label">Prazo estimado</div>
+          <div class="value" id="timeValue">--</div>
+          <div class="sub" id="timeSub">Ajuste patrimônio, aporte e rentabilidade.</div>
+        </article>
+        <article class="card kpi">
+          <div class="label">Retorno real</div>
+          <div class="value" id="realReturnValue">0%</div>
+          <div class="sub" id="realReturnSub">Nominal menos inflação (aprox. composta).</div>
+        </article>
+      </section>
+
+      <section class="planner" id="plannerSection">
+        <div class="card pad grid">
+          <div>
+            <div class="tiny muted">1. Definição do estilo de vida</div>
+            <h3 style="font-size:var(--text-lg);margin-top:.35rem">Planejador principal</h3>
+          </div>
+
+          <div class="styles" id="styleChoices">
+            <button class="style-option" data-income="5000" data-label="Básica">
+              <strong>Básica</strong>
+              <div class="muted tiny">R$ 5.000/mês</div>
+            </button>
+            <button class="style-option active" data-income="10000" data-label="Confortável">
+              <strong>Confortável</strong>
+              <div class="muted tiny">R$ 10.000/mês</div>
+            </button>
+            <button class="style-option" data-income="20000" data-label="Luxuosa">
+              <strong>Luxuosa</strong>
+              <div class="muted tiny">R$ 20.000/mês</div>
+            </button>
+          </div>
+
+          <div class="form-grid">
+            <div class="field">
+              <label for="monthlyIncome">Renda mensal desejada</label>
+              <input id="monthlyIncome" type="number" min="0" step="100" value="10000">
+            </div>
+            <div class="field">
+              <label for="currentNetWorth">Patrimônio atual investido</label>
+              <input id="currentNetWorth" type="number" min="0" step="1000" value="150000">
+            </div>
+            <div class="field">
+              <label for="monthlyContribution">Quanto investir por mês</label>
+              <input id="monthlyContribution" type="number" min="0" step="100" value="2500">
+            </div>
+            <div class="field">
+              <label for="annualReturn">Rentabilidade anual estimada (nominal)</label>
+              <input id="annualReturn" type="number" min="0" step="0.1" value="10">
+            </div>
+            <div class="field">
+              <label for="inflationRate">Inflação anual (IPCA)</label>
+              <input id="inflationRate" type="number" min="0" step="0.1" value="4.5">
+            </div>
+            <div class="field">
+              <label for="currentAge">Idade atual</label>
+              <input id="currentAge" type="number" min="18" max="80" step="1" value="35">
+            </div>
+            <div class="field">
+              <label for="retirementAge">Idade alvo (Coast / aposentadoria)</label>
+              <input id="retirementAge" type="number" min="40" max="90" step="1" value="65">
+            </div>
+          </div>
+
+          <div class="card pad" style="background:var(--color-surface-2)">
+            <p id="effectPhrase" style="font-weight:700">Com seu patrimônio alvo investido, você poderá gerar a renda mensal planejada usando a lógica da regra dos 4%.</p>
+          </div>
+        </div>
+
+        <div class="grid">
+          <div class="card pad slidders">
+            <div class="tiny muted">2. Ajuste de rota</div>
+            <h3 style="font-size:var(--text-lg);margin:.35rem 0 1rem">Teste cenários rápidos</h3>
+            <div class="sliders">
+              <div>
+                <div class="row" style="justify-content:space-between;margin-bottom:.5rem"><span>Aporte extra</span><strong id="extraContributionLabel">R$ 0</strong></div>
+                <input id="extraContribution" type="range" min="0" max="5000" step="100" value="0">
+              </div>
+              <div>
+                <div class="row" style="justify-content:space-between;margin-bottom:.5rem"><span>Esperar mais tempo</span><strong id="extraYearsLabel">0 anos</strong></div>
+                <input id="extraYears" type="range" min="0" max="10" step="1" value="0">
+              </div>
+            </div>
+          </div>
+
+          <div class="card pad" id="scenarioSection">
+            <div class="tiny muted">3. Múltiplos cenários</div>
+            <h3 style="font-size:var(--text-lg);margin:.35rem 0 1rem">Comparativo (retorno real)</h3>
+            <table class="scenario-table">
+              <thead><tr><th>Cenário</th><th>Retorno real</th><th>IPCA</th><th>Prazo</th><th>Data FIRE</th></tr></thead>
+              <tbody id="scenarioRows"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section class="card pad" id="chartSection">
+        <div class="tiny muted">Simulador temporal</div>
+        <h3 style="font-size:var(--text-lg);margin:.35rem 0 .5rem">Evolução do patrimônio até a meta</h3>
+        <p class="muted tiny" style="margin-bottom:1rem">Projeção mensal em valores de hoje; linha tracejada = meta FIRE constante em poder de compra.</p>
+        <div class="chart-wrap" aria-hidden="false">
+          <svg id="projectionChart" viewBox="0 0 640 220" preserveAspectRatio="none" role="img" aria-label="Gráfico de evolução patrimonial"></svg>
+        </div>
+        <div class="chart-legend" style="margin-top:1rem">
+          <span class="bal">Patrimônio projetado</span>
+          <span class="goal">Meta FIRE (real)</span>
+        </div>
+      </section>
+
+      <section class="card pad" id="coastSection">
+        <div class="tiny muted">Coast FIRE</div>
+        <h3 style="font-size:var(--text-lg);margin:.35rem 0 1rem">Patrimônio para “deixar a bola rolar”</h3>
+        <p class="muted" style="margin-bottom:1rem">Quanto você precisa <strong>hoje</strong> para, sem novos aportes, atingir a meta FIRE até a idade alvo — só com juros reais.</p>
+        <div class="coast-grid">
+          <div class="coast-stat">
+            <span class="tiny muted">Número Coast FIRE</span>
+            <strong id="coastValue">R$ 0</strong>
+            <p class="muted tiny" style="margin-top:.5rem" id="coastGap">—</p>
+          </div>
+          <div class="coast-stat">
+            <span class="tiny muted">Status Coast</span>
+            <strong id="coastStatus">—</strong>
+            <p class="muted tiny" style="margin-top:.5rem" id="coastExplain">Ajuste idade atual e idade alvo no planejador.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="onboarding">
+        <article class="card step">
+          <div class="step-num">1</div>
+          <h3 style="font-size:var(--text-lg);margin-bottom:.5rem">Entenda a regra</h3>
+          <p class="muted">O app explica que a meta começa pelo gasto anual desejado e transforma isso no patrimônio alvo.</p>
+        </article>
+        <article class="card step">
+          <div class="step-num">2</div>
+          <h3 style="font-size:var(--text-lg);margin-bottom:.5rem">Defina seu padrão</h3>
+          <p class="muted">Básica, confortável ou luxuosa. O usuário pode aceitar um preset ou personalizar os números.</p>
+        </article>
+        <article class="card step">
+          <div class="step-num">3</div>
+          <h3 style="font-size:var(--text-lg);margin-bottom:.5rem">Ajuste o plano</h3>
+          <p class="muted">Sliders mostram o impacto de aportar mais, esperar mais tempo ou mudar a taxa esperada.</p>
+        </article>
+      </section>
+
+      <section class="card pad">
+        <div class="tiny muted">Roadmap V3</div>
+        <h3 style="font-size:var(--text-lg);margin:.35rem 0 1rem">Próximas camadas</h3>
+        <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr))">
+          <div class="card pad" style="background:var(--color-surface-2)"><strong>Lean / Barista FIRE</strong><p class="muted tiny" style="margin-top:.5rem">Calculadoras adicionais no mesmo fluxo.</p></div>
+          <div class="card pad" style="background:var(--color-surface-2)"><strong>Histórico patrimonial</strong><p class="muted tiny" style="margin-top:.5rem">Snapshots mensais com localStorage ou CSV.</p></div>
+          <div class="card pad" style="background:var(--color-surface-2)"><strong>Custo de um gasto</strong><p class="muted tiny" style="margin-top:.5rem">“Quantos meses de liberdade este gasto custa?”</p></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const qs = id => document.getElementById(id);
+    const fmtBRL = value => new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL',maximumFractionDigits:0}).format(value || 0);
+    const fmtPct = value => `${value.toFixed(1)}%`;
+    const fmtMonthYear = date => date.toLocaleDateString('pt-BR',{month:'short',year:'numeric'});
+
+    const STORAGE_KEY = 'freedom4-v2-state';
+    const inputIds = ['monthlyIncome','currentNetWorth','monthlyContribution','annualReturn','inflationRate','currentAge','retirementAge'];
+    const sliderIds = ['extraContribution','extraYears'];
+
+    const state = {
+      monthlyIncome: 10000,
+      currentNetWorth: 150000,
+      monthlyContribution: 2500,
+      annualReturn: 10,
+      inflationRate: 4.5,
+      currentAge: 35,
+      retirementAge: 65,
+      extraContribution: 0,
+      extraYears: 0,
+      style: 'Confortável',
+      dark: null
+    };
+
+    let memoryStore = null;
+
+    function readStorage(){
+      try { return localStorage.getItem(STORAGE_KEY); } catch (_) { return memoryStore; }
+    }
+
+    function writeStorage(json){
+      try { localStorage.setItem(STORAGE_KEY, json); } catch (_) { memoryStore = json; }
+    }
+
+    function saveState(){
+      writeStorage(JSON.stringify(state));
+    }
+
+    function syncInputsFromState(){
+      inputIds.forEach(id => { const el = qs(id); if (el) el.value = state[id]; });
+      sliderIds.forEach(id => { const el = qs(id); if (el) el.value = state[id]; });
+      document.querySelectorAll('.style-option').forEach(btn => {
+        btn.classList.toggle('active', Number(btn.dataset.income) === state.monthlyIncome);
+      });
+    }
+
+    function loadState(){
+      try {
+        const raw = readStorage();
+        if (!raw) return;
+        const saved = JSON.parse(raw);
+        Object.assign(state, saved);
+        if (state.retirementAge < state.currentAge) state.retirementAge = state.currentAge + 1;
+        syncInputsFromState();
+      } catch (_) {}
+    }
+
+    function realAnnualReturn(nominal, inflation){
+      return ((1 + nominal / 100) / (1 + inflation / 100) - 1) * 100;
+    }
+
+    function monthlyRateFromAnnual(annualPct){
+      return Math.pow(1 + annualPct / 100, 1 / 12) - 1;
+    }
+
+    function monthsToGoal(target, initial, monthly, realAnnual){
+      if (initial >= target) return 0;
+      const r = monthlyRateFromAnnual(realAnnual);
+      let balance = initial;
+      let months = 0;
+      while (balance < target && months < 1200) {
+        balance = balance * (1 + r) + monthly;
+        months++;
+      }
+      return months >= 1200 ? null : months;
+    }
+
+    function nominalAtMonth(realAmount, inflation, months){
+      return realAmount * Math.pow(1 + inflation / 100, months / 12);
+    }
+
+    function addMonths(date, months){
+      const d = new Date(date);
+      d.setMonth(d.getMonth() + months);
+      return d;
+    }
+
+    function formatDuration(months){
+      if (months === null) return 'Meta distante';
+      if (months === 0) return 'Atingido';
+      const years = Math.floor(months / 12);
+      const rem = months % 12;
+      if (years === 0) return `${rem} meses`;
+      if (rem === 0) return `${years} anos`;
+      return `${years}a ${rem}m`;
+    }
+
+    function buildSeries(target, initial, monthly, realAnnual, maxMonths){
+      const r = monthlyRateFromAnnual(realAnnual);
+      const points = [{ m: 0, b: initial }];
+      let balance = initial;
+      let m = 0;
+      const cap = Math.min(maxMonths ?? 1200, 600);
+      while (m < cap) {
+        if (balance >= target) break;
+        balance = balance * (1 + r) + monthly;
+        m++;
+        if (m % Math.max(1, Math.floor(cap / 80)) === 0 || balance >= target) {
+          points.push({ m, b: Math.min(balance, target * 1.05) });
+        }
+      }
+      if (points[points.length - 1].m !== m) points.push({ m, b: balance });
+      return points;
+    }
+
+    function coastFireNumber(target, realAnnual, yearsToCoast){
+      if (yearsToCoast <= 0) return target;
+      const r = monthlyRateFromAnnual(realAnnual);
+      const months = yearsToCoast * 12;
+      if (r <= -1) return target;
+      return target / Math.pow(1 + r, months);
+    }
+
+    function compute(){
+      const annualIncome = state.monthlyIncome * 12;
+      const targetReal = annualIncome / 0.04;
+      const realReturn = realAnnualReturn(state.annualReturn, state.inflationRate);
+      const contribution = state.monthlyContribution + state.extraContribution;
+      const months = monthsToGoal(targetReal, state.currentNetWorth, contribution, realReturn);
+      const adjustedMonths = months === null ? null : Math.max(months - state.extraYears * 12, 0);
+      const safeMonthly = targetReal * 0.04 / 12;
+      const progress = Math.min((state.currentNetWorth / targetReal) * 100, 100);
+      const fireDate = adjustedMonths === null ? null : addMonths(new Date(), adjustedMonths);
+      const targetNominal = adjustedMonths === null ? null : nominalAtMonth(targetReal, state.inflationRate, adjustedMonths);
+      const yearsToRetire = Math.max(state.retirementAge - state.currentAge, 0);
+      const coastTarget = coastFireNumber(targetReal, realReturn, yearsToRetire);
+      const coastReached = state.currentNetWorth >= coastTarget;
+      return {
+        annualIncome, targetReal, realReturn, contribution, months, adjustedMonths,
+        safeMonthly, progress, fireDate, targetNominal, yearsToRetire, coastTarget, coastReached
+      };
+    }
+
+    function renderChart(target, initial, monthly, realAnnual, horizonMonths){
+      const svg = qs('projectionChart');
+      const w = 640, h = 220, pad = { t: 16, r: 16, b: 28, l: 56 };
+      const innerW = w - pad.l - pad.r, innerH = h - pad.t - pad.b;
+      const series = buildSeries(target, initial, monthly, realAnnual, horizonMonths);
+      const maxM = Math.max(series[series.length - 1].m, 12);
+      const maxB = Math.max(target, ...series.map(p => p.b)) * 1.08;
+      const x = m => pad.l + (m / maxM) * innerW;
+      const y = v => pad.t + innerH - (v / maxB) * innerH;
+      const line = series.map((p, i) => `${i ? 'L' : 'M'}${x(p.m).toFixed(1)},${y(p.b).toFixed(1)}`).join(' ');
+      const goalY = y(target);
+      const gridY = [0, 0.25, 0.5, 0.75, 1].map(t => {
+        const v = maxB * t;
+        return `<line x1="${pad.l}" y1="${y(v).toFixed(1)}" x2="${w - pad.r}" y2="${y(v).toFixed(1)}" stroke="var(--color-divider)" stroke-width="1"/>`;
+      }).join('');
+      svg.innerHTML = `
+        ${gridY}
+        <line x1="${pad.l}" y1="${goalY.toFixed(1)}" x2="${w - pad.r}" y2="${goalY.toFixed(1)}" stroke="var(--color-warning)" stroke-width="2" stroke-dasharray="6 4"/>
+        <path d="${line}" fill="none" stroke="var(--color-primary)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <text x="${pad.l}" y="${h - 8}" fill="var(--color-text-muted)" font-size="11">0</text>
+        <text x="${w - pad.r - 40}" y="${h - 8}" fill="var(--color-text-muted)" font-size="11">${Math.round(maxM / 12)} anos</text>
+      `;
+    }
+
+    function render(){
+      const m = compute();
+      const threat = m.realReturn < 2 ? 'Retorno real baixo ameaça o prazo.' : m.adjustedMonths > 240 ? 'Prazo longo: considere mais aporte ou revisão de meta.' : 'Cenário dentro de faixa educativa razoável.';
+
+      qs('targetValue').textContent = fmtBRL(m.targetReal);
+      qs('targetSub').textContent = `Renda anual ${fmtBRL(m.annualIncome)} · regra 4% em valores de hoje.`;
+      qs('targetNominalValue').textContent = m.targetNominal ? fmtBRL(m.targetNominal) : '—';
+      qs('targetNominalSub').textContent = m.adjustedMonths ? `Se IPCA ${fmtPct(state.inflationRate)} se mantiver até o FIRE.` : '—';
+      qs('fireDateValue').textContent = m.fireDate ? fmtMonthYear(m.fireDate) : '--';
+      qs('fireDateSub').textContent = m.adjustedMonths === 0 ? 'Meta já atingida em termos reais.' : m.adjustedMonths === null ? 'Ajuste parâmetros.' : `Daqui a ${formatDuration(m.adjustedMonths)}.`;
+      qs('timeValue').textContent = formatDuration(m.adjustedMonths);
+      qs('timeSub').textContent = m.adjustedMonths === 0 ? 'Você já está na faixa da meta.' : `Aporte ${fmtBRL(m.contribution)}/mês · nominal ${fmtPct(state.annualReturn)} · IPCA ${fmtPct(state.inflationRate)}.`;
+      qs('realReturnValue').textContent = fmtPct(m.realReturn);
+      qs('realReturnSub').textContent = `Saque ~${fmtBRL(m.safeMonthly)}/mês na meta (valores de hoje).`;
+
+      qs('progressPct').textContent = `${m.progress.toFixed(1)}%`;
+      qs('progressBar').style.width = `${m.progress}%`;
+      const circumference = 578;
+      qs('progressCircle').style.strokeDashoffset = `${circumference - (m.progress / 100) * circumference}`;
+      qs('progressText').textContent = `Você já conquistou ${m.progress.toFixed(1)}% da meta em poder de compra atual.`;
+      qs('effectPhrase').textContent = `Com ${fmtBRL(m.targetReal)} (hoje), projeção nominal de ${m.targetNominal ? fmtBRL(m.targetNominal) : '—'} no mês FIRE — saque ~${fmtBRL(m.safeMonthly)}/mês pela regra dos 4%.`;
+      qs('extraContributionLabel').textContent = fmtBRL(state.extraContribution);
+      qs('extraYearsLabel').textContent = `${state.extraYears} ${state.extraYears === 1 ? 'ano' : 'anos'} (antecipa a data)`;
+
+      const gap = m.targetReal - state.currentNetWorth;
+      qs('heroInsights').innerHTML = [
+        `<li><strong>Quanto falta:</strong> ${fmtBRL(Math.max(gap, 0))} em valores de hoje.</li>`,
+        `<li><strong>Quando chega:</strong> ${m.fireDate ? fmtMonthYear(m.fireDate) : '—'} (${formatDuration(m.adjustedMonths)}).</li>`,
+        `<li><strong>Cenário:</strong> ${threat}</li>`
+      ].join('');
+
+      qs('coastValue').textContent = fmtBRL(m.coastTarget);
+      qs('coastGap').textContent = m.coastReached
+        ? `Você tem ${fmtBRL(state.currentNetWorth)} — acima do Coast (${fmtBRL(m.coastTarget)}).`
+        : `Faltam ${fmtBRL(Math.max(m.coastTarget - state.currentNetWorth, 0))} para Coast com ${m.yearsToRetire} anos até idade ${state.retirementAge}.`;
+      qs('coastStatus').textContent = m.coastReached ? 'Coast atingido' : 'Ainda acumulando';
+      qs('coastExplain').textContent = `Sem aportes, ${fmtBRL(m.coastTarget)} hoje cresceriam até ~${fmtBRL(m.targetReal)} aos ${state.retirementAge} anos (retorno real ${fmtPct(m.realReturn)}).`;
+
+      const scenarios = [
+        { name: 'Pessimista', ret: Math.max(state.annualReturn - 4, 0), inf: state.inflationRate + 2 },
+        { name: 'Realista', ret: state.annualReturn, inf: state.inflationRate },
+        { name: 'Otimista', ret: state.annualReturn + 3, inf: Math.max(state.inflationRate - 1, 0) }
+      ];
+      qs('scenarioRows').innerHTML = scenarios.map(s => {
+        const rr = realAnnualReturn(s.ret, s.inf);
+        const mo = monthsToGoal(m.targetReal, state.currentNetWorth, m.contribution, rr);
+        const adj = mo === null ? null : Math.max(mo - state.extraYears * 12, 0);
+        const fd = adj === null ? '—' : fmtMonthYear(addMonths(new Date(), adj));
+        return `<tr><td>${s.name}</td><td>${fmtPct(rr)}</td><td>${fmtPct(s.inf)}</td><td>${formatDuration(adj)}</td><td>${fd}</td></tr>`;
+      }).join('');
+
+      const chartMonths = m.adjustedMonths === null ? 360 : Math.min(Math.max(m.adjustedMonths + 12, 24), 600);
+      renderChart(m.targetReal, state.currentNetWorth, m.contribution, m.realReturn, chartMonths);
+      saveState();
+    }
+
+    inputIds.forEach(id => {
+      const el = qs(id);
+      if (!el) return;
+      el.addEventListener('input', e => {
+        state[id] = Number(e.target.value || 0);
+        if (id === 'currentAge' && state.retirementAge <= state.currentAge) {
+          state.retirementAge = state.currentAge + 1;
+          qs('retirementAge').value = state.retirementAge;
+        }
+        render();
+      });
+    });
+    sliderIds.forEach(id => {
+      const el = qs(id);
+      if (!el) return;
+      el.addEventListener('input', e => { state[id] = Number(e.target.value || 0); render(); });
+    });
+
+    document.querySelectorAll('.style-option').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.style-option').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        state.monthlyIncome = Number(btn.dataset.income);
+        state.style = btn.dataset.label;
+        qs('monthlyIncome').value = state.monthlyIncome;
+        render();
+      });
+    });
+
+    qs('fillExample').addEventListener('click', () => {
+      Object.assign(state, {
+        monthlyIncome: 10000, currentNetWorth: 300000, monthlyContribution: 3500,
+        annualReturn: 10, inflationRate: 4.5, currentAge: 32, retirementAge: 65,
+        extraContribution: 0, extraYears: 0
+      });
+      qs('monthlyIncome').value = 10000;
+      qs('currentNetWorth').value = 300000;
+      qs('monthlyContribution').value = 3500;
+      qs('annualReturn').value = 10;
+      qs('inflationRate').value = 4.5;
+      qs('currentAge').value = 32;
+      qs('retirementAge').value = 65;
+      qs('extraContribution').value = 0;
+      qs('extraYears').value = 0;
+      render();
+    });
+
+    qs('presetConfortavel').addEventListener('click', () => {
+      document.querySelectorAll('.style-option')[1].click();
+    });
+
+    qs('scrollPlanner').addEventListener('click', () => {
+      qs('plannerSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+
+    document.querySelectorAll('#mainNav button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('#mainNav button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const el = qs(btn.dataset.scroll);
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    });
+
+    const root = document.documentElement;
+    const themeToggle = qs('themeToggle');
+    let dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+    function applyTheme(){
+      root.setAttribute('data-theme', dark ? 'dark' : 'light');
+      if (themeToggle) themeToggle.textContent = dark ? '☀️' : '🌙';
+      state.dark = dark;
+    }
+
+    function initApp(){
+      loadState();
+      if (state.dark === true || state.dark === false) dark = state.dark;
+      else dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      applyTheme();
+      if (themeToggle) {
+        themeToggle.addEventListener('click', () => {
+          dark = !dark;
+          applyTheme();
+          saveState();
+        });
+      }
+      render();
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initApp);
+    } else {
+      initApp();
+    }
+  </script>
+</body>
+</html>
