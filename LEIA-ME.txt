@@ -14,7 +14,14 @@ ALTERNATIVAS:
 
 PARAR O SERVIDOR:
 
-  Feche a janela "Freedom4 Servidor" na barra de tarefas.
+  Duplo clique em Parar-FREEDOM.bat
+  OU feche a janela "Freedom4 Servidor" na barra de tarefas.
+
+OUTROS COMANDOS:
+
+  Verificar-FREEDOM.bat   — checa arquivos e se o servidor responde
+  Sincronizar-app.bat     — copia index.html para freedom4-fire-app.html
+  Exportar / Importar     — botoes no topo do app (backup JSON)
 
 SEUS DADOS:
 

@@ -5,7 +5,8 @@ Como decidir o que implementar: **bug → cálculo errado → clareza → featur
 | Fase | Status | Foco |
 |------|--------|------|
 | V1 | Concluído | Regra 4%, simulador, presets, progresso |
-| V2 | Concluído | IPCA, data FIRE, gráfico, Coast FIRE, launcher local |
+| V2 | Concluído | IPCA, data FIRE, gráfico, Coast FIRE, launcher, SWR 3–5%, backup JSON |
+| V2.1 | Concluído | Debounce, fórmula rápida prazo, reserva em meses, Parar/Verificar.bat |
 | V3 | Em planejamento | Retenção, narrativa acionável, mais calculadoras |
 | V4+ | Futuro | Sync, corretora, Monte Carlo |
 

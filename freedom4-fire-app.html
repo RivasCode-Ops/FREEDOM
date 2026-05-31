@@ -145,8 +145,12 @@
         <div style="font-weight:900">App de independência financeira</div>
       </div>
       <div class="header-actions">
-        <button class="btn" id="presetConfortavel">Perfil confortável</button>
-        <button class="btn" id="themeToggle" aria-label="Alternar tema">🌙</button>
+        <button class="btn" id="exportData" type="button" title="Backup JSON">Exportar</button>
+        <button class="btn" id="importDataBtn" type="button" title="Restaurar backup">Importar</button>
+        <input type="file" id="importDataFile" accept="application/json,.json" hidden>
+        <button class="btn" id="resetData" type="button" title="Limpar dados salvos">Limpar</button>
+        <button class="btn" id="presetConfortavel" type="button">Perfil confortável</button>
+        <button class="btn" id="themeToggle" type="button" aria-label="Alternar tema">🌙</button>
       </div>
     </header>
 
@@ -217,9 +221,9 @@
           <div class="sub" id="timeSub">Ajuste patrimônio, aporte e rentabilidade.</div>
         </article>
         <article class="card kpi">
-          <div class="label">Retorno real</div>
-          <div class="value" id="realReturnValue">0%</div>
-          <div class="sub" id="realReturnSub">Nominal menos inflação (aprox. composta).</div>
+          <div class="label">Faltam (hoje)</div>
+          <div class="value" id="gapValue">R$ 0</div>
+          <div class="sub" id="gapSub">Retorno real e reserva de emergência.</div>
         </article>
       </section>
 
@@ -276,6 +280,15 @@
             </div>
           </div>
 
+          <div class="field">
+            <div class="row" style="justify-content:space-between;margin-bottom:.5rem">
+              <label for="withdrawalRate">Taxa de retirada segura (SWR)</label>
+              <strong id="withdrawalRateLabel">4,0%</strong>
+            </div>
+            <input id="withdrawalRate" type="range" min="3" max="5" step="0.25" value="4">
+            <p class="muted tiny" style="margin-top:.35rem">Regra dos 4% é padrão; 3% é mais conservador, 5% mais agressivo.</p>
+          </div>
+
           <div class="card pad" style="background:var(--color-surface-2)">
             <p id="effectPhrase" style="font-weight:700">Com seu patrimônio alvo investido, você poderá gerar a renda mensal planejada usando a lógica da regra dos 4%.</p>
           </div>
@@ -303,6 +316,11 @@
             <table class="scenario-table">
               <thead><tr><th>Cenário</th><th>Retorno real</th><th>IPCA</th><th>Prazo</th><th>Data FIRE</th></tr></thead>
               <tbody id="scenarioRows"></tbody>
+            </table>
+            <p class="tiny muted" style="margin:1rem 0 .5rem">Sensibilidade da taxa de retirada (mesma renda, meta em valores de hoje)</p>
+            <table class="scenario-table">
+              <thead><tr><th>SWR</th><th>Meta</th><th>Prazo</th><th>Saque mensal</th></tr></thead>
+              <tbody id="swrRows"></tbody>
             </table>
           </div>
         </div>
@@ -377,7 +395,7 @@
 
     const STORAGE_KEY = 'freedom4-v2-state';
     const inputIds = ['monthlyIncome','currentNetWorth','monthlyContribution','annualReturn','inflationRate','currentAge','retirementAge'];
-    const sliderIds = ['extraContribution','extraYears'];
+    const sliderIds = ['extraContribution','extraYears','withdrawalRate'];
 
     const state = {
       monthlyIncome: 10000,
@@ -385,6 +403,7 @@
       monthlyContribution: 2500,
       annualReturn: 10,
       inflationRate: 4.5,
+      withdrawalRate: 4,
       currentAge: 35,
       retirementAge: 65,
       extraContribution: 0,
@@ -394,6 +413,8 @@
     };
 
     let memoryStore = null;
+    let renderTimer = null;
+    const DEBOUNCE_MS = 120;
 
     function readStorage(){
       try { return localStorage.getItem(STORAGE_KEY); } catch (_) { return memoryStore; }
@@ -437,13 +458,17 @@
     function monthsToGoal(target, initial, monthly, realAnnual){
       if (initial >= target) return 0;
       const r = monthlyRateFromAnnual(realAnnual);
-      let balance = initial;
-      let months = 0;
-      while (balance < target && months < 1200) {
-        balance = balance * (1 + r) + monthly;
-        months++;
+      if (r <= 0) {
+        if (monthly <= 0) return null;
+        const m = Math.ceil((target - initial) / monthly);
+        return m > 1200 ? null : m;
       }
-      return months >= 1200 ? null : months;
+      const denom = initial * r + monthly;
+      if (denom <= 0) return null;
+      const numer = target * r + monthly;
+      if (numer <= denom) return 0;
+      const months = Math.ceil(Math.log(numer / denom) / Math.log(1 + r));
+      return months > 1200 ? null : months;
     }
 
     function nominalAtMonth(realAmount, inflation, months){
@@ -492,23 +517,33 @@
       return target / Math.pow(1 + r, months);
     }
 
+    function targetFromIncome(annualIncome, swrPct){
+      const rate = swrPct / 100;
+      return rate > 0 ? annualIncome / rate : 0;
+    }
+
     function compute(){
       const annualIncome = state.monthlyIncome * 12;
-      const targetReal = annualIncome / 0.04;
+      const swr = state.withdrawalRate;
+      const targetReal = targetFromIncome(annualIncome, swr);
       const realReturn = realAnnualReturn(state.annualReturn, state.inflationRate);
       const contribution = state.monthlyContribution + state.extraContribution;
       const months = monthsToGoal(targetReal, state.currentNetWorth, contribution, realReturn);
       const adjustedMonths = months === null ? null : Math.max(months - state.extraYears * 12, 0);
-      const safeMonthly = targetReal * 0.04 / 12;
-      const progress = Math.min((state.currentNetWorth / targetReal) * 100, 100);
+      const safeMonthly = targetReal * (swr / 100) / 12;
+      const progress = targetReal > 0 ? Math.min((state.currentNetWorth / targetReal) * 100, 100) : 0;
+      const gap = Math.max(targetReal - state.currentNetWorth, 0);
       const fireDate = adjustedMonths === null ? null : addMonths(new Date(), adjustedMonths);
+      const fireAge = adjustedMonths === null ? null : state.currentAge + adjustedMonths / 12;
       const targetNominal = adjustedMonths === null ? null : nominalAtMonth(targetReal, state.inflationRate, adjustedMonths);
       const yearsToRetire = Math.max(state.retirementAge - state.currentAge, 0);
       const coastTarget = coastFireNumber(targetReal, realReturn, yearsToRetire);
       const coastReached = state.currentNetWorth >= coastTarget;
+      const reserveMonths = state.monthlyIncome > 0 ? state.currentNetWorth / state.monthlyIncome : 0;
       return {
-        annualIncome, targetReal, realReturn, contribution, months, adjustedMonths,
-        safeMonthly, progress, fireDate, targetNominal, yearsToRetire, coastTarget, coastReached
+        annualIncome, targetReal, swr, realReturn, contribution, months, adjustedMonths,
+        safeMonthly, progress, gap, fireDate, fireAge, targetNominal, yearsToRetire,
+        coastTarget, coastReached, reserveMonths
       };
     }
 
@@ -536,34 +571,43 @@
       `;
     }
 
+    function scheduleRender(){
+      clearTimeout(renderTimer);
+      renderTimer = setTimeout(render, DEBOUNCE_MS);
+    }
+
     function render(){
       const m = compute();
-      const threat = m.realReturn < 2 ? 'Retorno real baixo ameaça o prazo.' : m.adjustedMonths > 240 ? 'Prazo longo: considere mais aporte ou revisão de meta.' : 'Cenário dentro de faixa educativa razoável.';
+      let threat = 'Cenário dentro de faixa educativa razoável.';
+      if (m.realReturn <= 0) threat = 'Retorno real ≤ 0: a meta não cresce com os premissas atuais.';
+      else if (m.realReturn < 2) threat = 'Retorno real baixo ameaça o prazo.';
+      else if (m.adjustedMonths > 240) threat = 'Prazo longo: considere mais aporte ou revisão de meta.';
 
       qs('targetValue').textContent = fmtBRL(m.targetReal);
-      qs('targetSub').textContent = `Renda anual ${fmtBRL(m.annualIncome)} · regra 4% em valores de hoje.`;
+      qs('targetSub').textContent = `Renda anual ${fmtBRL(m.annualIncome)} · SWR ${fmtPct(m.swr)} em valores de hoje.`;
       qs('targetNominalValue').textContent = m.targetNominal ? fmtBRL(m.targetNominal) : '—';
       qs('targetNominalSub').textContent = m.adjustedMonths ? `Se IPCA ${fmtPct(state.inflationRate)} se mantiver até o FIRE.` : '—';
       qs('fireDateValue').textContent = m.fireDate ? fmtMonthYear(m.fireDate) : '--';
-      qs('fireDateSub').textContent = m.adjustedMonths === 0 ? 'Meta já atingida em termos reais.' : m.adjustedMonths === null ? 'Ajuste parâmetros.' : `Daqui a ${formatDuration(m.adjustedMonths)}.`;
+      qs('fireDateSub').textContent = m.fireAge ? `Idade ~${Math.floor(m.fireAge)} anos · retorno real ${fmtPct(m.realReturn)}.` : 'Ajuste parâmetros.';
       qs('timeValue').textContent = formatDuration(m.adjustedMonths);
-      qs('timeSub').textContent = m.adjustedMonths === 0 ? 'Você já está na faixa da meta.' : `Aporte ${fmtBRL(m.contribution)}/mês · nominal ${fmtPct(state.annualReturn)} · IPCA ${fmtPct(state.inflationRate)}.`;
-      qs('realReturnValue').textContent = fmtPct(m.realReturn);
-      qs('realReturnSub').textContent = `Saque ~${fmtBRL(m.safeMonthly)}/mês na meta (valores de hoje).`;
+      qs('timeSub').textContent = m.adjustedMonths === 0 ? 'Você já está na faixa da meta.' : `Aporte ${fmtBRL(m.contribution)}/mês · nominal ${fmtPct(state.annualReturn)}.`;
+      qs('gapValue').textContent = fmtBRL(m.gap);
+      qs('gapSub').textContent = `Reserva: ~${m.reserveMonths.toFixed(1)} meses de gasto · saque ${fmtBRL(m.safeMonthly)}/mês na meta.`;
+      if (qs('withdrawalRateLabel')) qs('withdrawalRateLabel').textContent = `${m.swr.toFixed(2).replace('.', ',')}%`;
 
       qs('progressPct').textContent = `${m.progress.toFixed(1)}%`;
       qs('progressBar').style.width = `${m.progress}%`;
       const circumference = 578;
       qs('progressCircle').style.strokeDashoffset = `${circumference - (m.progress / 100) * circumference}`;
       qs('progressText').textContent = `Você já conquistou ${m.progress.toFixed(1)}% da meta em poder de compra atual.`;
-      qs('effectPhrase').textContent = `Com ${fmtBRL(m.targetReal)} (hoje), projeção nominal de ${m.targetNominal ? fmtBRL(m.targetNominal) : '—'} no mês FIRE — saque ~${fmtBRL(m.safeMonthly)}/mês pela regra dos 4%.`;
+      qs('effectPhrase').textContent = `Com ${fmtBRL(m.targetReal)} (hoje) e SWR ${fmtPct(m.swr)}, projeção nominal ${m.targetNominal ? fmtBRL(m.targetNominal) : '—'} no FIRE — saque ~${fmtBRL(m.safeMonthly)}/mês.`;
       qs('extraContributionLabel').textContent = fmtBRL(state.extraContribution);
       qs('extraYearsLabel').textContent = `${state.extraYears} ${state.extraYears === 1 ? 'ano' : 'anos'} (antecipa a data)`;
 
-      const gap = m.targetReal - state.currentNetWorth;
       qs('heroInsights').innerHTML = [
-        `<li><strong>Quanto falta:</strong> ${fmtBRL(Math.max(gap, 0))} em valores de hoje.</li>`,
+        `<li><strong>Quanto falta:</strong> ${fmtBRL(m.gap)} em valores de hoje.</li>`,
         `<li><strong>Quando chega:</strong> ${m.fireDate ? fmtMonthYear(m.fireDate) : '—'} (${formatDuration(m.adjustedMonths)}).</li>`,
+        `<li><strong>Reserva atual:</strong> ~${m.reserveMonths.toFixed(1)} meses do gasto mensal planejado.</li>`,
         `<li><strong>Cenário:</strong> ${threat}</li>`
       ].join('');
 
@@ -587,6 +631,15 @@
         return `<tr><td>${s.name}</td><td>${fmtPct(rr)}</td><td>${fmtPct(s.inf)}</td><td>${formatDuration(adj)}</td><td>${fd}</td></tr>`;
       }).join('');
 
+      const swrList = [3, 4, 5];
+      qs('swrRows').innerHTML = swrList.map(pct => {
+        const t = targetFromIncome(m.annualIncome, pct);
+        const mo = monthsToGoal(t, state.currentNetWorth, m.contribution, m.realReturn);
+        const adj = mo === null ? null : Math.max(mo - state.extraYears * 12, 0);
+        const sm = t * (pct / 100) / 12;
+        return `<tr><td>${fmtPct(pct)}</td><td>${fmtBRL(t)}</td><td>${formatDuration(adj)}</td><td>${fmtBRL(sm)}</td></tr>`;
+      }).join('');
+
       const chartMonths = m.adjustedMonths === null ? 360 : Math.min(Math.max(m.adjustedMonths + 12, 24), 600);
       renderChart(m.targetReal, state.currentNetWorth, m.contribution, m.realReturn, chartMonths);
       saveState();
@@ -601,13 +654,13 @@
           state.retirementAge = state.currentAge + 1;
           qs('retirementAge').value = state.retirementAge;
         }
-        render();
+        scheduleRender();
       });
     });
     sliderIds.forEach(id => {
       const el = qs(id);
       if (!el) return;
-      el.addEventListener('input', e => { state[id] = Number(e.target.value || 0); render(); });
+      el.addEventListener('input', e => { state[id] = Number(e.target.value || 0); scheduleRender(); });
     });
 
     document.querySelectorAll('.style-option').forEach(btn => {
@@ -617,14 +670,54 @@
         state.monthlyIncome = Number(btn.dataset.income);
         state.style = btn.dataset.label;
         qs('monthlyIncome').value = state.monthlyIncome;
-        render();
+        scheduleRender();
       });
     });
+
+    function exportBackup(){
+      const blob = new Blob([JSON.stringify({ version: 2, savedAt: new Date().toISOString(), state }, null, 2)], { type: 'application/json' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `freedom4-backup-${new Date().toISOString().slice(0, 10)}.json`;
+      a.click();
+      URL.revokeObjectURL(a.href);
+    }
+
+    function importBackup(file){
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const data = JSON.parse(reader.result);
+          Object.assign(state, data.state || data);
+          syncInputsFromState();
+          render();
+          alert('Dados importados com sucesso.');
+        } catch {
+          alert('Arquivo JSON inválido.');
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function resetAll(){
+      if (!confirm('Limpar todos os dados salvos e voltar ao padrão?')) return;
+      try { localStorage.removeItem(STORAGE_KEY); } catch (_) {}
+      memoryStore = null;
+      location.reload();
+    }
+
+    qs('exportData')?.addEventListener('click', exportBackup);
+    qs('importDataBtn')?.addEventListener('click', () => qs('importDataFile')?.click());
+    qs('importDataFile')?.addEventListener('change', e => {
+      if (e.target.files?.[0]) importBackup(e.target.files[0]);
+      e.target.value = '';
+    });
+    qs('resetData')?.addEventListener('click', resetAll);
 
     qs('fillExample').addEventListener('click', () => {
       Object.assign(state, {
         monthlyIncome: 10000, currentNetWorth: 300000, monthlyContribution: 3500,
-        annualReturn: 10, inflationRate: 4.5, currentAge: 32, retirementAge: 65,
+        annualReturn: 10, inflationRate: 4.5, withdrawalRate: 4, currentAge: 32, retirementAge: 65,
         extraContribution: 0, extraYears: 0
       });
       qs('monthlyIncome').value = 10000;
@@ -634,6 +727,7 @@
       qs('inflationRate').value = 4.5;
       qs('currentAge').value = 32;
       qs('retirementAge').value = 65;
+      qs('withdrawalRate').value = 4;
       qs('extraContribution').value = 0;
       qs('extraYears').value = 0;
       render();
