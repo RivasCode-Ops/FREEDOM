@@ -31,10 +31,30 @@
     .btn-primary { background: var(--primary); color: #0a1210; }
     .btn-ghost { border: 1px solid #3a4540; color: var(--text); }
     .logo { width: 52px; height: 52px; border-radius: 14px; background: linear-gradient(135deg, var(--primary), var(--accent)); display: grid; place-items: center; font-weight: 900; color: #fff; margin-bottom: 1rem; }
-    @media print { .slide { min-height: auto; padding: 1.5rem 0; } body { background: #fff; color: #111; } p, li { color: #333; } }
+    .toolbar { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; gap: .5rem; flex-wrap: wrap; padding: .65rem 1rem; background: rgba(15,20,18,.92); border-bottom: 1px solid #2a322e; backdrop-filter: blur(8px); }
+    .toolbar button { padding: .5rem .85rem; border-radius: .5rem; border: 1px solid #3a4540; background: var(--surface); color: var(--text); font-weight: 700; font-size: .8rem; cursor: pointer; }
+    .toolbar button.primary { background: var(--primary); color: #0a1210; border-color: var(--primary); }
+    body { padding-top: 3.25rem; }
+    @media print {
+      .toolbar { display: none !important; }
+      body { padding-top: 0; background: #fff; color: #111; }
+      .slide { min-height: 85vh; padding: 2rem 1rem; page-break-after: always; border: none; }
+      .tag { color: #0c4e54; background: #e8f4f2; }
+      h2 { color: #0c4e54; }
+      p, li { color: #333; }
+      .card { border: 1px solid #ccc; background: #f8f8f6; }
+      .card h3 { color: #111; }
+      .cta a { color: #111; }
+      strong { color: #000; }
+    }
   </style>
 </head>
 <body>
+  <nav class="toolbar" aria-label="Ações do pitch">
+    <button type="button" class="primary" onclick="window.print()">Salvar PDF (Ctrl+P)</button>
+    <button type="button" onclick="location.href='divulgacao-linkedin-video.html'">Textos LinkedIn / Vídeo</button>
+    <button type="button" onclick="location.href='index.html'">Abrir app</button>
+  </nav>
   <div class="deck">
 
     <section class="slide">

@@ -6,7 +6,9 @@ Repositório: [RivasCode-Ops/FREEDOM](https://github.com/RivasCode-Ops/FREEDOM)
 
 **Roadmap e prioridades:** [ROADMAP.md](ROADMAP.md) · **Novas issues:** [Issues → New issue](https://github.com/RivasCode-Ops/FREEDOM/issues/new/choose)
 
-**Pitch (apresentação):** [pitch-deck.html](pitch-deck.html) ou `Abrir-Pitch.bat` · **Inventário geral:** [../inventario-projetos.html](../inventario-projetos.html)
+**Pitch:** [pitch-deck.html](pitch-deck.html) · `Abrir-Pitch.bat` · PDF: `Exportar-Pitch-PDF.bat`  
+**LinkedIn / vídeo:** [divulgacao-linkedin-video.html](divulgacao-linkedin-video.html) · `Abrir-Divulgacao.bat` · [conteudo-divulgacao.md](conteudo-divulgacao.md)  
+**Inventário:** [../inventario-projetos.html](../inventario-projetos.html)
 
 ## Funcionalidades
 
