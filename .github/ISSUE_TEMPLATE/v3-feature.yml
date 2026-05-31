@@ -1,0 +1,59 @@
+name: V3 — proxima acao do roadmap
+description: Feature alinhada as 5 prioridades (historico, gasto, Lean, Barista, CSV)
+title: "[V3] "
+labels: ["v3"]
+body:
+  - type: markdown
+    value: |
+      Antes de propor: confira as [5 acoes priorizadas](https://github.com/RivasCode-Ops/FREEDOM/blob/main/ROADMAP.md).
+      Se nao estiver na lista, use o template "Ideia / nice-to-have".
+
+  - type: dropdown
+    id: roadmap_item
+    attributes:
+      label: Qual item do roadmap?
+      options:
+        - "1 — Historico patrimonial"
+        - "2 — Custo de um gasto (meses de liberdade)"
+        - "3 — Lean FIRE"
+        - "4 — Barista FIRE"
+        - "5 — Exportar / importar CSV"
+        - Outro (justificar abaixo)
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Qual problema do usuario isso resolve?
+      placeholder: "Ex.: usuario nao volta ao app porque nao ve evolucao mensal"
+    validations:
+      required: true
+
+  - type: textarea
+    id: done
+    attributes:
+      label: Criterio de pronto (como saber que terminou?)
+      placeholder: "Ex.: botao Salvar mes grava data+patrimonio e mostra no grafico"
+    validations:
+      required: true
+
+  - type: textarea
+    id: scope
+    attributes:
+      label: Escopo minimo (MVP desta feature)
+      description: O que NAO entra nesta entrega?
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: gates
+    attributes:
+      label: Portoes de prioridade
+      options:
+        - label: Pelo menos 2 usuarios pediram algo parecido (ou eu usei 3x e senti falta)
+          required: false
+        - label: Nao exige login/backend nesta versao
+          required: false
+        - label: V1 e V2 estao estaveis para eu usar no dia a dia
+          required: false

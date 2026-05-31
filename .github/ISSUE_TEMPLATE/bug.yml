@@ -1,0 +1,60 @@
+name: Bug — algo nao funciona
+description: Erro, tela quebrada, launcher, calculo claramente errado
+title: "[Bug] "
+labels: ["bug"]
+body:
+  - type: markdown
+    value: |
+      Prioridade no projeto: **bug que impede uso** vem antes de feature nova.
+      Veja o [ROADMAP](https://github.com/RivasCode-Ops/FREEDOM/blob/main/ROADMAP.md).
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Onde ocorre?
+      options:
+        - Launcher (Iniciar-FREEDOM.bat / servidor)
+        - App no navegador (calculo / UI)
+        - GitHub Pages
+        - Outro
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Passos para reproduzir
+      placeholder: "1. Abri Iniciar-FREEDOM.bat\n2. Ajustei IPCA para 5%\n3. ..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: O que esperava
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: O que aconteceu
+    validations:
+      required: true
+
+  - type: input
+    id: browser
+    attributes:
+      label: Navegador e SO (ex. Edge, Windows 10)
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      options:
+        - label: Testei com Iniciar-FREEDOM.bat (http://127.0.0.1:8765)
+          required: false
+        - label: Li o ROADMAP — nao e pedido de feature nova disfarçado
+          required: false

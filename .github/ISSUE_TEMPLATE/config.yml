@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Roadmap e prioridades V3
+    url: https://github.com/RivasCode-Ops/FREEDOM/blob/main/ROADMAP.md
+    about: Veja as proximas 5 acoes antes de abrir uma issue
+  - name: Como usar o app localmente
+    url: https://github.com/RivasCode-Ops/FREEDOM/blob/main/LEIA-ME.txt
+    about: Launcher Iniciar-FREEDOM.bat e servidor local

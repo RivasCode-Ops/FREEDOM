@@ -1,0 +1,35 @@
+name: Ideia — nice-to-have
+description: Sugestao fora do V3 imediato (corretora, Monte Carlo, login...)
+title: "[Ideia] "
+labels: ["nice-to-have"]
+body:
+  - type: markdown
+    value: |
+      Ideias validas, mas **nao entram antes** das 5 acoes do [ROADMAP](https://github.com/RivasCode-Ops/FREEDOM/blob/main/ROADMAP.md)
+      salvo se forem bloqueadores.
+
+  - type: textarea
+    id: idea
+    attributes:
+      label: Descreva a ideia
+    validations:
+      required: true
+
+  - type: textarea
+    id: why_later
+    attributes:
+      label: Por que pode esperar depois do V3?
+    validations:
+      required: true
+
+  - type: dropdown
+    id: phase
+    attributes:
+      label: Fase sugerida
+      options:
+        - V4 — integracao / sync
+        - V4 — risco (Monte Carlo)
+        - V4 — produto (login, monetizacao)
+        - Incerto
+    validations:
+      required: true
