@@ -58,6 +58,8 @@ gh issue create --title "[V3] Exportar e importar CSV" --label v3 --body-file .g
 
 ## Referências externas
 
+Catálogo completo (tags Adotar / Inspirar / Ignorar, mapeamento V3): **[docs/GITHUB-INSPIRACOES.md](docs/GITHUB-INSPIRACOES.md)** · índice do ecossistema: [workbench](https://github.com/RivasCode-Ops/workbench/blob/main/docs/GITHUB-INSPIRACOES-ECOSSISTEMA.md)
+
 | Repo | Aprender |
 |------|----------|
 | [wealthyparrot/fire-calculator](https://github.com/wealthyparrot/fire-calculator) | Inflação, termos reais |

@@ -4,7 +4,7 @@ Protótipo web de planejamento de independência financeira (FIRE), com calculad
 
 Repositório: [RivasCode-Ops/FREEDOM](https://github.com/RivasCode-Ops/FREEDOM)
 
-**Roadmap e prioridades:** [ROADMAP.md](ROADMAP.md) · **Novas issues:** [Issues → New issue](https://github.com/RivasCode-Ops/FREEDOM/issues/new/choose)
+**Roadmap e prioridades:** [ROADMAP.md](ROADMAP.md) · **Inspirações GitHub:** [docs/GITHUB-INSPIRACOES.md](docs/GITHUB-INSPIRACOES.md) · **Novas issues:** [Issues → New issue](https://github.com/RivasCode-Ops/FREEDOM/issues/new/choose)
 
 **Pitch:** [pitch-deck.html](pitch-deck.html) · `Abrir-Pitch.bat` · PDF: `Exportar-Pitch-PDF.bat`  
 **LinkedIn / vídeo:** [divulgacao-linkedin-video.html](divulgacao-linkedin-video.html) · `Abrir-Divulgacao.bat` · [conteudo-divulgacao.md](conteudo-divulgacao.md)  
