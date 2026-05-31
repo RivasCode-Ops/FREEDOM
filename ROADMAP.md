@@ -17,11 +17,25 @@ Use esta ordem. Só pule um item se o anterior estiver **estável e testado**.
 
 | # | Ação | Problema que resolve | Critério de “pronto” | Issue |
 |---|------|----------------------|----------------------|-------|
-| 1 | **Histórico patrimonial** | Usuário só simula; não acompanha evolução | Registrar snapshot mensal; gráfico “patrimônio real vs meta”; persiste em `localStorage` | [#1](https://github.com/RivasCode-Ops/FREEDOM/issues/1) |
-| 2 | **Custo de um gasto** | “Quanto este gasto atrasa minha liberdade?” | Campo valor do gasto → meses/anos extras até FIRE; copy clara no hero | [#2](https://github.com/RivasCode-Ops/FREEDOM/issues/2) |
-| 3 | **Lean FIRE** | Meta mais enxuta (estilo frugal) | Calculadora ou preset com gasto ~60–70% do confortável; KPI dedicado | [#3](https://github.com/RivasCode-Ops/FREEDOM/issues/3) |
-| 4 | **Barista FIRE** | Renda parcial + trabalho leve | Simular renda desejada menor + renda ativa até cobrir o gap | [#4](https://github.com/RivasCode-Ops/FREEDOM/issues/4) |
-| 5 | **Exportar / importar CSV** | Backup e planilha | Botões export/import; colunas data, patrimônio, aporte | [#5](https://github.com/RivasCode-Ops/FREEDOM/issues/5) |
+| 1 | **Histórico patrimonial** | Usuário só simula; não acompanha evolução | Registrar snapshot mensal; gráfico “patrimônio real vs meta”; persiste em `localStorage` | [rascunho](.github/issues/01-historico-patrimonial.md) |
+| 2 | **Custo de um gasto** | “Quanto este gasto atrasa minha liberdade?” | Campo valor do gasto → meses/anos extras até FIRE; copy clara no hero | [rascunho](.github/issues/02-custo-de-um-gasto.md) |
+| 3 | **Lean FIRE** | Meta mais enxuta (estilo frugal) | Calculadora ou preset com gasto ~60–70% do confortável; KPI dedicado | [rascunho](.github/issues/03-lean-fire.md) |
+| 4 | **Barista FIRE** | Renda parcial + trabalho leve | Simular renda desejada menor + renda ativa até cobrir o gap | [rascunho](.github/issues/04-barista-fire.md) |
+| 5 | **Exportar / importar CSV** | Backup e planilha | Botões export/import; colunas data, patrimônio, aporte | [rascunho](.github/issues/05-export-import-csv.md) |
+
+### Criar as 5 issues no GitHub (1 minuto)
+
+1. Abra [New issue → V3](https://github.com/RivasCode-Ops/FREEDOM/issues/new?template=v3-feature.yml) ou copie o texto de `.github/issues/0X-....md`.
+2. Crie na ordem 1 → 5 e marque label `v3`.
+3. Opcional no terminal (após `gh auth login`):
+
+```bash
+gh issue create --title "[V3] Historico patrimonial" --label v3 --body-file .github/issues/01-historico-patrimonial.md
+gh issue create --title "[V3] Custo de um gasto" --label v3 --body-file .github/issues/02-custo-de-um-gasto.md
+gh issue create --title "[V3] Lean FIRE" --label v3 --body-file .github/issues/03-lean-fire.md
+gh issue create --title "[V3] Barista FIRE" --label v3 --body-file .github/issues/04-barista-fire.md
+gh issue create --title "[V3] Exportar e importar CSV" --label v3 --body-file .github/issues/05-export-import-csv.md
+```
 
 ### Não fazer agora (nice-to-have)
 
